@@ -192,6 +192,8 @@ class Player:
                 move = m
                 score = s
         #return the best score and move so far
+        if move==-1:
+            move=board.legalMoves(self)[0]
         return score, move
 
     def alphaValue(self, board, ply, turn, upperBound):
