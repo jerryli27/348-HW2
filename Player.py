@@ -201,12 +201,40 @@ class Player:
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
-        totalScore=50.0
-        totalScore+=board.scoreCups[0]-board.scoreCups[1]
+        totalScore=0
+        if self.num==1:
+            cupsIndex=0
+            for i in board.P1Cups[0:5]:
+                freeMove=0;opponent=0;capture=0;beCaptured=0;index2=cupsIndex+1;
+                if (i==6-cupsIndex):
+                    freeMove=1 #whether player earns a free move
+                opponent=min(0,(6-cupsIndex)-i) #number of pieces given to opponent
+                for j in board.P1Cups[index2:5]:
+                    if j==0 and i==index2-cupsIndex:
+                        capture=1+board.P2Cups[5-index2]
+                    index2+=1
+                cupsIndex+=1
+            totalScore=board.scoreCups[0]-board.scoreCups[1]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
+            #totalScore+=board.scoreCups[0]-board.scoreCups[1]
+        elif self.num==2:
+            cupsIndex=0
+            for i in board.P2Cups[0:5]:
+                freeMove=0;opponent=0;capture=0;beCaptured=0;index2=cupsIndex+1;
+                if (i==6-cupsIndex):
+                    freeMove=1 #whether player earns a free move
+                opponent=min(0,(6-cupsIndex)-i) #number of pieces given to opponent
+                for j in board.P2Cups[index2:5]:
+                    if j==0 and i==index2-cupsIndex:
+                        capture=1+board.P1Cups[5-index2]
+                    index2+=1
+                cupsIndex+=1
+            totalScore=board.scoreCups[0]-board.scoreCups[1]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
+            totalScore=-totalScore
+            #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         if board.hasWon(self.num):
-            return 100.0
+            return INFINITY
         elif board.hasWon(self.opp):
-            return 0.0
+            return -INFINITY
         return totalScore
                 
     def chooseMove(self, board):
