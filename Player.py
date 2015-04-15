@@ -125,7 +125,8 @@ class Player:
                         capture=1+board.P2Cups[5-index2]
                     index2+=1
                 cupsIndex+=1
-            totalScore=board.scoreCups[0]-board.scoreCups[1]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
+                localScore=board.scoreCups[0]-board.scoreCups[1]+2*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
+            totalScore+=localScore
             #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         elif self.num==2:
             cupsIndex=0
@@ -139,7 +140,7 @@ class Player:
                         capture=1+board.P1Cups[5-index2]
                     index2+=1
                 cupsIndex+=1
-            totalScore=board.scoreCups[0]-board.scoreCups[1]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
+            totalScore=board.scoreCups[1]-board.scoreCups[0]+2*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
             totalScore=-totalScore
             #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         if board.hasWon(self.num):
