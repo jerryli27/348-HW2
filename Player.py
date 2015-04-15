@@ -163,7 +163,7 @@ class Player:
                         beCaptured=2+board.P2Cups[18-(j+index2)]
                     index2+=1
                 cupsIndex+=1
-                totalScore=max(totalScore,1*(board.scoreCups[0]-board.scoreCups[1])+2*freeMove+(-0.8)*opponent+1.5*capture+(-1.5)*beCaptured)
+                totalScore=max(totalScore,1*(board.scoreCups[1]-board.scoreCups[0])+2*freeMove+(-0.8)*opponent+1.5*capture+(-1.5)*beCaptured)
                 #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         return totalScore
 
