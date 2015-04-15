@@ -109,6 +109,11 @@ class Player:
     # to improve on this function.
     def score(self, board):
                 """ Evaluate the Mancala board for this player """
+                if board.hasWon(self.num):
+            return INFINITY
+        elif board.hasWon(self.opp):
+            return -INFINITY
+        """ Evaluate the Mancala board for this player """
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
@@ -116,38 +121,40 @@ class Player:
         if self.num==1:
             cupsIndex=0
             for i in board.P1Cups[0:5]:
-                freeMove=0;opponent=0;capture=0;beCaptured=0;index2=cupsIndex+1;
+                freeMove=0;opponent=0;capture=0;beCaptured=0;
                 if (i==6-cupsIndex):
                     freeMove=1 #whether player earns a free move
-                opponent=min(0,(6-cupsIndex)-i) #number of pieces given to opponent
-                for j in board.P1Cups[index2:5]:
-                    if j==0 and i==index2-cupsIndex:
-                        capture=1+board.P2Cups[5-index2]
+                opponent=max(0,i+cupsIndex-6) #number of pieces given to opponent
+                if i+cupsIndex<=5 and i>0 and board.P1Cups[cupsIndex+i]==0:
+                    capture=1+board.P2Cups[5-i-cupsIndex]
+                index2=0
+                for j in board.P2Cups[index2:5]:
+                    if j+index2<=5 and j>0 and board.P2Cups[index2+j]==0:
+                        beCaptured=1+board.P1Cups[5-index2-j]
                     index2+=1
                 cupsIndex+=1
-                localScore=board.scoreCups[0]-board.scoreCups[1]+2*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
-            totalScore+=localScore
+                totalScore+=board.scoreCups[0]-board.scoreCups[1]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
             #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         elif self.num==2:
             cupsIndex=0
             for i in board.P2Cups[0:5]:
-                freeMove=0;opponent=0;capture=0;beCaptured=0;index2=cupsIndex+1;
+                freeMove=0;opponent=0;capture=0;beCaptured=0;
                 if (i==6-cupsIndex):
                     freeMove=1 #whether player earns a free move
-                opponent=min(0,(6-cupsIndex)-i) #number of pieces given to opponent
-                for j in board.P2Cups[index2:5]:
-                    if j==0 and i==index2-cupsIndex:
-                        capture=1+board.P1Cups[5-index2]
+                opponent=max(0,i+cupsIndex-6) #number of pieces given to opponent
+                if i+cupsIndex<=5 and i>0 and board.P2Cups[cupsIndex+i]==0:
+                    capture=1+board.P1Cups[5-i-cupsIndex]
+                index2=0
+                for j in board.P1Cups[index2:5]:
+                    if j+index2<=5 and j>0 and board.P1Cups[index2+j]==0:
+                        beCaptured=1+board.P2Cups[5-index2-j]
                     index2+=1
                 cupsIndex+=1
-                localScore=board.scoreCups[1]-board.scoreCups[0]+2*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
-            totalScore+=localScore
+                totalScore+=board.scoreCups[1]-board.scoreCups[0]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
+            totalScore=-totalScore
             #totalScore+=board.scoreCups[0]-board.scoreCups[1]
-        if board.hasWon(self.num):
-            return INFINITY
-        elif board.hasWon(self.opp):
-            return -INFINITY
         return totalScore
+
 
     # You should not modify anything before this point.
     # The code you will add to this file appears below this line.
