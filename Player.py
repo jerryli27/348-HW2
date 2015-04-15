@@ -108,8 +108,8 @@ class Player:
     # You will write the score function in the MancalaPlayer below
     # to improve on this function.
     def score(self, board):
-                """ Evaluate the Mancala board for this player """
-                if board.hasWon(self.num):
+        """ Evaluate the Mancala board for this player """
+        if board.hasWon(self.num):
             return INFINITY
         elif board.hasWon(self.opp):
             return -INFINITY
