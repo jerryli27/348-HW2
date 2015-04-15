@@ -202,6 +202,6 @@ def startGame(p1, p2):
 
     root.mainloop()
 
-player1=Player(1,Player.ABPRUNE,2)
-player2=Player(2,Player.ABPRUNE,7)
+player2=jlt709(2,Player.CUSTOM)
+player1=Player(1,Player.ABPRUNE,12)
 startGame(player1,player2)
