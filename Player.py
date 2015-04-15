@@ -140,8 +140,8 @@ class Player:
                         capture=1+board.P1Cups[5-index2]
                     index2+=1
                 cupsIndex+=1
-            totalScore=board.scoreCups[1]-board.scoreCups[0]+2*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
-            totalScore=-totalScore
+                localScore=board.scoreCups[1]-board.scoreCups[0]+2*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
+            totalScore+=localScore
             #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         if board.hasWon(self.num):
             return INFINITY
