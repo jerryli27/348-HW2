@@ -117,7 +117,7 @@ class Player:
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
-        totalScore=0
+        totalScore=-INFINITY
         if self.num==1:
             cupsIndex=0
             for i in board.P1Cups[0:5]:
@@ -125,16 +125,22 @@ class Player:
                 if (i==6-cupsIndex):
                     freeMove=1 #whether player earns a free move
                 opponent=max(0,i+cupsIndex-6) #number of pieces given to opponent
+                #calculate how much can a move capture 
                 if i+cupsIndex<=5 and i>0 and board.P1Cups[cupsIndex+i]==0:
-                    capture=1+board.P2Cups[5-i-cupsIndex]
+                    capture=1+board.P2Cups[5-(i+cupsIndex)]
+                elif i+cupsIndex>=13 and i<14 and (board.P1Cups[cupsIndex+i-13]==0 or i==13):
+                    capture=2+board.P2Cups[18-(i+cupsIndex)]
+                    opponent+=5
+                
                 index2=0
-                for j in board.P2Cups[index2:5]:
-                    if j+index2<=5 and j>0 and board.P2Cups[index2+j]==0:
-                        beCaptured=1+board.P1Cups[5-index2-j]
+                for j in board.P2Cups[0:5]:
+                    if j+index2<=5 and j>0 and board.P2Cups[j+index2]==0:
+                        beCaptured=1+board.P1Cups[5-(j+index2)]
+                    elif j+index2>=13 and j<14 and (board.P2Cups[index2+j-13]==0 or j==13):
+                        beCaptured=2+board.P1Cups[18-(j+index2)]
                     index2+=1
                 cupsIndex+=1
-                totalScore+=board.scoreCups[0]-board.scoreCups[1]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
-            #totalScore+=board.scoreCups[0]-board.scoreCups[1]
+                totalScore=max(totalScore,1*(board.scoreCups[0]-board.scoreCups[1])+2*freeMove+(-0.8)*opponent+1.5*capture+(-1.5)*beCaptured)        
         elif self.num==2:
             cupsIndex=0
             for i in board.P2Cups[0:5]:
@@ -142,17 +148,23 @@ class Player:
                 if (i==6-cupsIndex):
                     freeMove=1 #whether player earns a free move
                 opponent=max(0,i+cupsIndex-6) #number of pieces given to opponent
+                #calculate how much can a move capture 
                 if i+cupsIndex<=5 and i>0 and board.P2Cups[cupsIndex+i]==0:
-                    capture=1+board.P1Cups[5-i-cupsIndex]
+                    capture=1+board.P1Cups[5-(i+cupsIndex)]
+                elif i+cupsIndex>=13 and i<14 and (board.P2Cups[cupsIndex+i-13]==0 or i==13):
+                    capture=2+board.P1Cups[18-(i+cupsIndex)]
+                    opponent+=5
+        
                 index2=0
-                for j in board.P1Cups[index2:5]:
-                    if j+index2<=5 and j>0 and board.P1Cups[index2+j]==0:
-                        beCaptured=1+board.P2Cups[5-index2-j]
+                for j in board.P1Cups[0:5]:
+                    if j+index2<=5 and j>0 and board.P1Cups[j+index2]==0:
+                        beCaptured=1+board.P2Cups[5-(j+index2)]
+                    elif j+index2>=13 and j<14 and (board.P1Cups[index2+j-13]==0 or j==13):
+                        beCaptured=2+board.P2Cups[18-(j+index2)]
                     index2+=1
                 cupsIndex+=1
-                totalScore+=board.scoreCups[1]-board.scoreCups[0]+1*freeMove+(-1)*opponent+1*capture+(-1)*beCaptured
-            totalScore=-totalScore
-            #totalScore+=board.scoreCups[0]-board.scoreCups[1]
+                totalScore=max(totalScore,1*(board.scoreCups[0]-board.scoreCups[1])+2*freeMove+(-0.8)*opponent+1.5*capture+(-1.5)*beCaptured)
+                #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         return totalScore
 
 
