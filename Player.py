@@ -130,18 +130,14 @@ class Player:
 
     def alphaBetaMove(self, board, ply):
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
-        """ Choose the best minimax move.  Returns (score, move) """
         move = -1
         score = -INFINITY
-        lowerbound=-INFINITY
-        upperbound=INFINITY
         turn = self
         for m in board.legalMoves(self):
-            self.node_expanded+=1
             #for each legal move
             if ply == 0:
                 #if we're at ply 0, we need to call our eval function & return
-                return (self.smarter_score(board), m)
+                return (self.score(board), m)
             if board.gameOver():
                 return (-1, -1)  # Can't make a move, the game is over
             nb = deepcopy(board)
@@ -149,67 +145,55 @@ class Player:
             nb.makeMove(self, m)
             #try the move
             opp = Player(self.opp, self.type, self.ply)
-            s = opp.betaValue(nb, ply-1, turn,lowerbound,upperbound)
+            s = opp.betaValue(nb, ply-1, turn, score)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
                 move = m
                 score = s
         #return the best score and move so far
-        print self.node_expanded
         return score, move
 
-    def alphaValue(self, board, ply, turn,lowerbound,upperbound):
-        """ Find the minimax value for the next move for this player
-        at a given board configuation. Returns score."""
+    def alphaValue(self, board, ply, turn, upperBound):
         if board.gameOver():
-            return turn.smarter_score(board)
+            return turn.score(board)
         score = -INFINITY
         for m in board.legalMoves(self):
-            self.node_expanded+=1
             if ply == 0:
                 #print "turn.score(board) in max value is: " + str(turn.score(board))
-                return turn.smarter_score(board)
+                return turn.score(board)
             # make a new player to play the other side
             opponent = Player(self.opp, self.type, self.ply)
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
             nextBoard.makeMove(self, m)
-            s = opponent.betaValue(nextBoard, ply-1, turn,lowerbound,upperbound)
+            s = opponent.betaValue(nextBoard, ply-1, turn, score)
             #print "s in maxValue is: " + str(s)
-            if s>=upperbound:
+            if s >= upperBound:
                 return s
-            if s > score:
+            elif s > score:
                 score = s
-            if s>lowerbound:
-                lowerbound=s
-
         return score
 
-    def betaValue(self, board, ply, turn,lowerbound,upperbound):
-        """ Find the minimax value for the next move for this player
-            at a given board configuation. Returns score."""
+    def betaValue(self, board, ply, turn, lowerBound):
         if board.gameOver():
-            return turn.smarter_score(board)
+            return turn.score(board)
         score = INFINITY
         for m in board.legalMoves(self):
-            self.node_expanded+=1
             if ply == 0:
                 #print "turn.score(board) in min Value is: " + str(turn.score(board))
-                return turn.smarter_score(board)
+                return turn.score(board)
             # make a new player to play the other side
             opponent = Player(self.opp, self.type, self.ply)
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
             nextBoard.makeMove(self, m)
-            s = opponent.alphaValue(nextBoard, ply-1, turn,lowerbound,upperbound)
+            s = opponent.alphaValue(nextBoard, ply-1, turn, score)
             #print "s in minValue is: " + str(s)
-            if s<=lowerbound:
+            if s <= lowerBound:
                 return s
-            if s < score:
+            elif s < score:
                 score = s
-            if s<upperbound:
-                upperbound=s
         return score
 
     def smarter_score(self, board):
@@ -217,12 +201,12 @@ class Player:
         # Currently this function just calls Player's score
         # function.  You should replace the line below with your own code
         # for evaluating the board
-        totalScore=0
+        totalScore=50.0
         totalScore+=board.scoreCups[0]-board.scoreCups[1]
         if board.hasWon(self.num):
             return 100.0
         elif board.hasWon(self.opp):
-            return -100.0
+            return 0.0
         return totalScore
                 
     def chooseMove(self, board):
@@ -275,5 +259,3 @@ class MancalaPlayer(Player):
         elif board.hasWon(self.opp):
             return -100.0
         return totalScore
-
-        
