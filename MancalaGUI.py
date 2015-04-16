@@ -250,32 +250,62 @@ class MancalaTest:
         self.turn = self.wait
         self.wait = temp
 
-    def evolve(self):
-        player1list=[];player2list=[];
-        parameterFreeMoveList=[];parameterOpponentList=[];parameterCaptureList=[];parameterBeCapturedList=[];
+def evolve():
+    player1list=[];player2list=[];player1wins=[];player2wins=[]
+    parameterFreeMoveList=[];parameterOpponentList=[];parameterCaptureList=[];parameterBeCapturedList=[];
+    parameterFreeMoveBest=2;parameterOpponentBest=-0.8;parameterCaptureBest=1.5;parameterBeCapturedBest=-1.5;
+
+    for repeatTimes in range(0,10):
         for i in range(0,10):
             #create a list of parameters. They are generated based on the norm and sdev.
-            parameterFreeMoveList.append(random.normalvariate(2,0.5))
-            parameterOpponentList.append(random.normalvariate(-0.8,0.5))
-            parameterCaptureList.append(random.normalvariate(1.5,0.5))
-            parameterBeCapturedList.append(random.normalvariate(-1.5,0.5))
+            parameterFreeMoveList.append(random.normalvariate(parameterFreeMoveBest,0.5))
+            parameterOpponentList.append(random.normalvariate(parameterOpponentBest,0.5))
+            parameterCaptureList.append(random.normalvariate(parameterCaptureBest,0.5))
+            parameterBeCapturedList.append(random.normalvariate(parameterBeCapturedBest,0.5))
 
-            player1list.append(jlt709(1,jlt709.CUSTOM,5,arameterFreeMoveList[i],parameterOpponentList[i], parameterCaptureList[i],parameterBeCapturedList[i]))
+            player1list.append(jlt709(1,jlt709.CUSTOM,5,parameterFreeMoveList[i],parameterOpponentList[i], parameterCaptureList[i],parameterBeCapturedList[i]))
 
         for i in range(10,20):
             #create a list of parameters
-            parameterFreeMoveList.append(random.normalvariate(2,0.5))
-            parameterOpponentList.append(random.normalvariate(-0.8,0.5))
-            parameterCaptureList.append(random.normalvariate(1.5,0.5))
-            parameterBeCapturedList.append(random.normalvariate(-1.5,0.5))
+            parameterFreeMoveList.append(random.normalvariate(parameterFreeMoveBest,0.5))
+            parameterOpponentList.append(random.normalvariate(parameterOpponentBest,0.5))
+            parameterCaptureList.append(random.normalvariate(parameterCaptureBest,0.5))
+            parameterBeCapturedList.append(random.normalvariate(parameterBeCapturedBest,0.5))
 
-            player2list.append(jlt709(2,jlt709.CUSTOM,5,arameterFreeMoveList[i],parameterOpponentList[i], parameterCaptureList[i],parameterBeCapturedList[i]))
+            player2list.append(jlt709(2,jlt709.CUSTOM,5,parameterFreeMoveList[i],parameterOpponentList[i], parameterCaptureList[i],parameterBeCapturedList[i]))
+
+        player1wins=[0]*10;player2wins=[0]*10
+        for i in range(0,10):
+            for j in range(0,10):
+                test=MancalaTest(player1list[i],player2list[j])
+                test.newgame()
+                if test.game.gameOver():
+                    if test.game.hasWon(1):
+                        player1wins[i]+=1
+                    elif test.game.hasWon(2):
+                        player2wins[j]+=1
+                    else:
+                        player1wins[i]+=0.5
+                        player1wins[j]+=0.5
+
+        # Now find the best performing one.
+        best=0
+        for i in range(0,10):
+            if player1wins[i]>best:
+                index=i
+                best=player1list[1]
+            if player2wins[i]>best:
+                index=i+10
+                best=player2list[1]
+        #replace the old best performing parameters with the new ones
+        parameterFreeMoveBest=parameterFreeMoveList[index];parameterOpponentBest=parameterOpponentList[index];
+        parameterCaptureBest=parameterCaptureList[index];parameterBeCapturedBest=parameterBeCapturedList[index];
+
+    print "parameterFreeMoveBest"+str(parameterFreeMoveBest)
+    print "parameterOpponentBest"+str(parameterOpponentBest)
+    print "parameterCaptureBest"+str(parameterCaptureBest)
+    print "parameterBeCapturedBest"+str(parameterBeCapturedBest)
+    wait=input("Press anything to continue")
 
 
-def testGame(p1,p2):
-    test=MancalaTest(p1,p2)
-    test.newgame()
-    while test.game.gameOver():
-        test.newgame()
-
-testGame(player1,player2)
+evolve()
