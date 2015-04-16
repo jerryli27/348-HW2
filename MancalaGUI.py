@@ -2,6 +2,7 @@
 from Tkinter import *
 from MancalaBoard import *
 from Player import *
+import random
 
 class MancalaWindow:
     """# A very simple GUI for playing the game of Mancala."""
@@ -202,6 +203,79 @@ def startGame(p1, p2):
 
     root.mainloop()
 
-player2=jlt709(2,Player.CUSTOM)
-player1=Player(1,Player.ABPRUNE,12)
-startGame(player1,player2)
+player1=jlt709(1,jlt709.CUSTOM,3)
+player2=Player(2,Player.ABPRUNE,3)
+#startGame(player1,player2)
+
+#This class is created to use Genetic algorithm without a user interface.
+class MancalaTest:
+    def __init__(self, p1, p2):
+        self.game = MancalaBoard()
+        self.p1 = p1
+        self.p2 = p2
+
+        self.turn = p1
+        self.wait = p2
+    def newgame(self):
+        """ Start a new game between the players """
+        self.game.reset()
+        self.turn = self.p1
+        self.wait = self.p2
+        s = "Player " + str(self.turn) + "'s turn"
+        if self.turn.type != Player.HUMAN:
+            s += " Please wait..."
+        self.continueGame()
+    def continueGame( self ):
+        """ Find out what to do next.  If the game is over, report who
+            won.  If it's a human player's turn, enable the board for
+            a click.  If it's a computer player's turn, choose the next move."""
+        if self.game.gameOver():
+            if self.game.hasWon(self.p1.num):
+                print "Player " + str(self.p1) + " wins"
+            elif self.game.hasWon(self.p2.num):
+                print "Player " + str(self.p2) + " wins"
+            else:
+                print "Tie game"
+            return
+        else:
+            move = self.turn.chooseMove( self.game )
+            playAgain = self.game.makeMove( self.turn, move )
+            if not playAgain:
+                self.swapTurns()
+            self.continueGame()
+
+    def swapTurns( self ):
+        """ Change whose turn it is"""
+        temp = self.turn
+        self.turn = self.wait
+        self.wait = temp
+
+    def evolve(self):
+        player1list=[];player2list=[];
+        parameterFreeMoveList=[];parameterOpponentList=[];parameterCaptureList=[];parameterBeCapturedList=[];
+        for i in range(0,10):
+            #create a list of parameters. They are generated based on the norm and sdev.
+            parameterFreeMoveList.append(random.normalvariate(2,0.5))
+            parameterOpponentList.append(random.normalvariate(-0.8,0.5))
+            parameterCaptureList.append(random.normalvariate(1.5,0.5))
+            parameterBeCapturedList.append(random.normalvariate(-1.5,0.5))
+
+            player1list.append(jlt709(1,jlt709.CUSTOM,5,arameterFreeMoveList[i],parameterOpponentList[i], parameterCaptureList[i],parameterBeCapturedList[i]))
+
+        for i in range(10,20):
+            #create a list of parameters
+            parameterFreeMoveList.append(random.normalvariate(2,0.5))
+            parameterOpponentList.append(random.normalvariate(-0.8,0.5))
+            parameterCaptureList.append(random.normalvariate(1.5,0.5))
+            parameterBeCapturedList.append(random.normalvariate(-1.5,0.5))
+
+            player2list.append(jlt709(2,jlt709.CUSTOM,5,arameterFreeMoveList[i],parameterOpponentList[i], parameterCaptureList[i],parameterBeCapturedList[i]))
+
+
+def testGame(p1,p2):
+    test=MancalaTest(p1,p2)
+    test.newgame()
+    while test.game.gameOver():
+        test.newgame()
+
+testGame(player1,player2)

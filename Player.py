@@ -289,7 +289,7 @@ class Player:
 class jlt709(Player):
     """ Defines a player that knows how to evaluate a Mancala gameboard
         intelligently """
-    def __init__(self, playerNum, playerType, ply=8):
+    def __init__(self, playerNum, playerType, ply=5,parameterFreeMove=2,parameterOpponent=-0.8,parameterCapture=1.5,parameterBeCaptured=-1.5):
         """Initialize a Player with a playerNum (1 or 2), playerType (one of
         the constants such as HUMAN), and a ply (default is 0)."""
         self.num = playerNum
@@ -297,6 +297,10 @@ class jlt709(Player):
         self.type = playerType
         self.ply = ply
         self.node_expanded=0
+        self.parameterFreeMove=parameterFreeMove
+        self.parameterOpponent=parameterOpponent
+        self.parameterCapture=parameterCapture
+        self.parameterBeCaptured=parameterBeCaptured
     def __repr__(self):
         """Returns a string representation of the Player."""
         return str(self.num)
@@ -340,7 +344,7 @@ class jlt709(Player):
                         beCaptured=2+board.P1Cups[18-(j+index2)]
                     index2+=1
                 cupsIndex+=1
-                totalScore=max(totalScore,1*(board.scoreCups[0]-board.scoreCups[1])+2*freeMove+(-0.8)*opponent+1.5*capture+(-1.5)*beCaptured)
+                totalScore=max(totalScore,1*(board.scoreCups[0]-board.scoreCups[1])+self.parameterFreeMove*freeMove+self.parameterOpponent*opponent+self.parameterCapture*capture+self.parameterBeCaptured*beCaptured)
         elif self.num==2:
             cupsIndex=0
             for i in board.P2Cups[0:5]:
@@ -363,7 +367,7 @@ class jlt709(Player):
                         beCaptured=2+board.P2Cups[18-(j+index2)]
                     index2+=1
                 cupsIndex+=1
-                totalScore=max(totalScore,1*(board.scoreCups[1]-board.scoreCups[0])+2*freeMove+(-0.8)*opponent+1.5*capture+(-1.5)*beCaptured)
+                totalScore=max(totalScore,1*(board.scoreCups[1]-board.scoreCups[0])+self.parameterFreeMove*freeMove+self.parameterOpponent*opponent+self.parameterCapture*capture+self.parameterBeCaptured*beCaptured)
                 #totalScore+=board.scoreCups[0]-board.scoreCups[1]
         return totalScore
 
@@ -384,6 +388,7 @@ class jlt709(Player):
         """ Choose a move with alpha beta pruning.  Returns (score, move) """
         move = -1
         score = -INFINITY
+
         turn = self
         for m in board.legalMoves(self):
             #for each legal move
@@ -396,8 +401,8 @@ class jlt709(Player):
             #make a new board
             nb.makeMove(self, m)
             #try the move
-            opp = Player(self.opp, self.type, self.ply)
-            s = opp.betaValue(nb, ply-1, turn, score)
+            opp = jlt709(self.opp, self.type, self.ply)
+            s = opp.betaValue(nb, ply-1, turn, -INFINITY, INFINITY)
             #and see what the opponent would do next
             if s > score:
                 #if the result is better than our best score so far, save that move,score
@@ -408,7 +413,7 @@ class jlt709(Player):
             move=board.legalMoves(self)[0]
         return score, move
 
-    def alphaValue(self, board, ply, turn, upperBound):
+    def alphaValue(self, board, ply, turn, lowerBound,upperBound):
         if board.gameOver():
             return turn.score(board)
         score = -INFINITY
@@ -417,19 +422,21 @@ class jlt709(Player):
                 #print "turn.score(board) in max value is: " + str(turn.score(board))
                 return turn.score(board)
             # make a new player to play the other side
-            opponent = Player(self.opp, self.type, self.ply)
+            opponent = jlt709(self.opp, self.type, self.ply)
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
-            nextBoard.makeMove(self, m)
-            s = opponent.betaValue(nextBoard, ply-1, turn, score)
+            if nextBoard.makeMove(self, m)==True:
+                s=self.alphaValue(nextBoard, ply-1, turn, lowerBound,upperBound)
+            else:
+                s = opponent.betaValue(nextBoard, ply-1, turn, lowerBound,upperBound)
             #print "s in maxValue is: " + str(s)
-            if s >= upperBound:
-                return s
-            elif s > score:
-                score = s
+            score=max(score,s)
+            lowerBound=max(lowerBound,score)
+            if upperBound<=lowerBound:
+                return score
         return score
 
-    def betaValue(self, board, ply, turn, lowerBound):
+    def betaValue(self, board, ply, turn, lowerBound,upperBound):
         if board.gameOver():
             return turn.score(board)
         score = INFINITY
@@ -438,14 +445,17 @@ class jlt709(Player):
                 #print "turn.score(board) in min Value is: " + str(turn.score(board))
                 return turn.score(board)
             # make a new player to play the other side
-            opponent = Player(self.opp, self.type, self.ply)
+            opponent = jlt709(self.opp, self.type, self.ply)
             # Copy the board so that we don't ruin it
             nextBoard = deepcopy(board)
             nextBoard.makeMove(self, m)
-            s = opponent.alphaValue(nextBoard, ply-1, turn, score)
+            if nextBoard.makeMove(self, m)==True:
+                s=self.betaValue(nextBoard, ply-1, turn, lowerBound,upperBound)
+            else:
+                s = opponent.alphaValue(nextBoard, ply-1, turn, lowerBound,upperBound)
+            score=min(score,s)
             #print "s in minValue is: " + str(s)
-            if s <= lowerBound:
-                return s
-            elif s < score:
-                score = s
+            upperBound=min(upperBound,score)
+            if upperBound<=lowerBound:
+                return score
         return score
