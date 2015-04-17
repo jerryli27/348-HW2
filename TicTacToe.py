@@ -1,3 +1,4 @@
+from TTTPlayer import *
 
 class TTTBoard:
     def __init__(self):
@@ -120,3 +121,8 @@ class TTTBoard:
             else:
                 print "O wins!"
 
+
+player1 = TTTPlayer(1, 0)
+player2 = TTTPlayer(2, 4, 15)
+board = TTTBoard()
+board.hostGame(player1, player2)
